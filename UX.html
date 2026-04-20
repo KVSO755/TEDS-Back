@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagrama de Flujo UX - Proyecto TEDS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 4px solid #0984E3;
+        }
+
+        h1 {
+            color: #2D3436;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #636E72;
+            font-size: 1.2em;
+            font-style: italic;
+        }
+
+        .flowchart {
+            display: flex;
+            gap: 40px;
+            overflow-x: auto;
+            padding: 20px 0;
+        }
+
+        .phase {
+            flex: 1;
+            min-width: 300px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 5px solid;
+        }
+
+        .phase-1 { border-color: #0984E3; }
+        .phase-2 { border-color: #00B894; }
+        .phase-3 { border-color: #6C5CE7; }
+        .phase-4 { border-color: #E17055; }
+        .phase-5 { border-color: #0984E3; }
+        .phase-6 { border-color: #00B894; }
+        .phase-7 { border-color: #E17055; }
+
+        .phase-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2D3436;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .node {
+            margin-bottom: 15px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .node-box {
+            padding: 15px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .start-end {
+            background: linear-gradient(135deg, #2D3436 0%, #636E72 100%);
+            border-radius: 30px;
+        }
+
+        .process {
+            background: linear-gradient(135deg, #0984E3 0%, #74B9FF 100%);
+        }
+
+        .decision {
+            background: linear-gradient(135deg, #E17055 0%, #FAB1A0 100%);
+            transform: rotate(0deg);
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            padding: 30px 20px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stakeholder {
+            background: linear-gradient(135deg, #00B894 0%, #55EFC4 100%);
+        }
+
+        .testing {
+            background: linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%);
+        }
+
+        .feedback {
+            background: linear-gradient(135deg, #FDCB6E 0%, #FFEAA7 100%);
+            color: #2D3436;
+        }
+
+        .arrow {
+            text-align: center;
+            font-size: 24px;
+            color: #636E72;
+            margin: 10px 0;
+        }
+
+        .arrow-down::after {
+            content: "↓";
+        }
+
+        .decision-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 15px 0;
+        }
+
+        .branch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.9em;
+            color: #636E72;
+        }
+
+        .branch-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .loop-back {
+            font-size: 0.85em;
+            color: #E17055;
+            font-style: italic;
+            margin-top: 5px;
+        }
+
+        .legend {
+            margin-top: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .legend h3 {
+            margin-bottom: 20px;
+            color: #2D3436;
+        }
+
+        .legend-items {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+        }
+
+        .tooltip {
+            position: fixed;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        @media (max-width: 1200px) {
+            .flowchart {
+                flex-direction: column;
+            }
+            .phase {
+                min-width: 100%;
+            }
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Diagrama de Flujo UX - Proyecto TEDS</h1>
+            <p class="subtitle">Sistema de Detección de Concentración con IA para Estudiantes con TDAH</p>
+        </header>
+
+        <div class="flowchart">
+            <!-- FASE 1: INVESTIGACIÓN -->
+            <div class="phase phase-1">
+                <div class="phase-title">Fase 1: Investigación</div>
+
+                <div class="node" data-info="Inicio del proyecto TEDS - Sistema de detección de concentración">
+                    <div class="node-box start-end">INICIO<br>Proyecto TEDS</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="node" data-info="Investigación sobre estudiantes con TDAH y sus hábitos de estudio">
+                    <div class="node-box process">Investigación de Usuarios<br>Estudiantes con TDAH</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="node" data-info="Análisis de necesidades: detección de distracciones mediante IA y reconocimiento facial">
+                    <div class="node-box process">Analizar Necesidades<br>IA - Reconocimiento Facial</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="node" data-info="Creación de perfiles de usuario: estudiantes universitarios con TDAH y docentes">
+                    <div class="node-box process">Crear User Personas<br>Estudiantes - Docentes</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="node" data-info="Mapeo del journey: estudio → distracción → alerta → gamificación">
+                    <div class="node-box process">Mapear User Journey<br>Flujo completo de uso</div>
+                </div>
+            </div>
+
+            <!-- FASE 2: ARQUITECTURA -->
+            <div class="phase phase-2">
+                <div class="phase-title">Fase 2: Arquitectura</div>
+
+                <div class="node" data-info="Estructura: Pre-evaluación → Sesión de estudio → Análisis de resultados">
+                    <div class="node-box process">Arquitectura de Información<br>Estructura de módulos</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="node" data-info="Wireframes: Dashboard, sistema de alertas visuales, configuración personalizada">
+                    <div class="node-box process">Crear Wireframes<br>Dashboard - Alertas - Config</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="node" data-info="Revisión con equipo TEDS y asesores académicos, validación de funcionalidades IA">
+                    <div class="node-box stakeholder">Revisión Stakeholders<br>Equipo + Asesores</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="decision-container">
+                    <div class="node" data-info="¿El diseño es aprobado por stakeholders?">
+                        <div class="node-box decision">¿Aprobado?</div>
+                    </div>
+                    <div class="branch">
+                        <span class="branch-label">No →</span>
+                        <div class="node" data-info="Retornar a wireframes para cambios necesarios">
+                            <div class="node-box feedback" style="font-size: 0.8em;">Cambios<br>Necesarios</div>
+                        </div>
+                        <span class="loop-back">↩ Volver a Wireframes</span>
+                    </div>
+                </div>
+                <div class="arrow arrow-down" style="color: #00B894;"></div>
+            </div>
+
+            <!-- FASE 3: PROTOTIPADO -->
+            <div class="phase phase-3">
+                <div class="phase-title">Fase 3: Prototipado</div>
+
+                <div class="node" data-info="Construcción del prototipo funcional con detector de pantalla IA, reconocimiento facial y gamificación">
+                    <div class="node-box testing">Construir Prototipo<br>IA - Detección - Gamificación</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="node" data-info="Pruebas con estudiantes TDAH reales, validación de precisión del modelo IA">
+                    <div class="node-box testing">Pruebas Usabilidad<br>Testing TDAH - Validación IA</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="node" data-info="Feedback sobre precisión en detección de distracciones, efectividad de alertas">
+                    <div class="node-box feedback">Recolectar Feedback<br>Precisión - Alertas - UX</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="decision-container">
+                    <div class="node" data-info="¿Se encontraron errores o problemas de usabilidad?">
+                        <div class="node-box decision">¿Errores?</div>
+                    </div>
+                    <div class="branch">
+                        <span class="branch-label">Sí →</span>
+                        <div class="node" data-info="Iterar y mejorar el diseño basado en feedback">
+                            <div class="node-box feedback" style="font-size: 0.8em;">Iterar<br>Diseño</div>
+                        </div>
+                        <span class="loop-back">↩ Volver a Prototipo</span>
+                    </div>
+                </div>
+                <div class="arrow arrow-down" style="color: #6C5CE7;"></div>
+            </div>
+
+            <!-- FASE 4: IMPLEMENTACIÓN -->
+            <div class="phase phase-4">
+                <div class="phase-title">Fase 4: Implementación</div>
+
+                <div class="node" data-info="Diseño UI final de alta fidelidad con animaciones de alertas y visualización de datos">
+                    <div class="node-box process">Mockups Alta Fidelidad<br>UI Final - Animaciones</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="node" data-info="Aplicar design system: colores para calma/enfoque, tipografía legible, accesibilidad WCAG">
+                    <div class="node-box process">Design System<br>Colores - Tipografía - Accesibilidad</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="node" data-info="Revisión final: validación de privacidad de datos faciales, cumplimiento ético de IA, aprobación legal">
+                    <div class="node-box stakeholder">Revisión Final<br>Privacidad - Ética - Legal</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="decision-container">
+                    <div class="node" data-info="¿Aprobado para desarrollo?">
+                        <div class="node-box decision">¿Aprobado?</div>
+                    </div>
+                    <div class="branch">
+                        <span class="branch-label">No →</span>
+                        <div class="node" data-info="Revisiones necesarias antes del desarrollo">
+                            <div class="node-box feedback" style="font-size: 0.8em;">Revisiones</div>
+                        </div>
+                        <span class="loop-back">↩ Volver a Mockups</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 5: DESARROLLO -->
+            <div class="phase phase-5">
+                <div class="phase-title">Fase 5: Desarrollo</div>
+
+                <div class="node" data-info="Entrega de especificaciones técnicas a desarrolladores, APIs de reconocimiento facial">
+                    <div class="node-box process">Entrega a Devs<br>Especificaciones IA - APIs</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="node" data-info="Desarrollo de backend (IA/ML), frontend web/desktop, integración de cámara y sensores">
+                    <div class="node-box testing">Implementación<br>Backend - Frontend - Sensores</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="node" data-info="Testing QA: seguridad de datos biométricos, rendimiento del modelo IA, compatibilidad">
+                    <div class="node-box testing">Testing QA<br>Seguridad - Rendimiento</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="decision-container">
+                    <div class="node" data-info="¿Listo para lanzamiento?">
+                        <div class="node-box decision">¿Listo?</div>
+                    </div>
+                    <div class="branch">
+                        <span class="branch-label">No →</span>
+                        <div class="node" data-info="Ajustes necesarios antes del lanzamiento">
+                            <div class="node-box feedback" style="font-size: 0.8em;">Ajustes</div>
+                        </div>
+                        <span class="loop-back">↩ Volver a Implementación</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 6: LANZAMIENTO -->
+            <div class="phase phase-6">
+                <div class="phase-title">Fase 6: Lanzamiento</div>
+
+                <div class="node" data-info="Despliegue en producción, release v1.0 de TEDS">
+                    <div class="node-box stakeholder">Lanzamiento<br>Release v1.0 TEDS</div>
+                </div>
+            </div>
+
+            <!-- FASE 7: POST-LANZAMIENTO -->
+            <div class="phase phase-7">
+                <div class="phase-title">Fase 7: Post-Lanzamiento</div>
+
+                <div class="node" data-info="Monitoreo continuo: tasa de concentración de usuarios, efectividad de alertas">
+                    <div class="node-box process">Monitorear y Medir<br>Métricas de uso</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="node" data-info="Optimización continua: mejoras del modelo IA, nuevas funcionalidades basadas en datos">
+                    <div class="node-box process">Optimización Continua<br>Mejoras IA - Features</div>
+                </div>
+                <div class="arrow arrow-down"></div>
+
+                <div class="node" data-info="Fin del ciclo de desarrollo UX, inicio de nuevo ciclo de mejoras">
+                    <div class="node-box start-end">FIN<br>Ciclo Completo</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <h3>Leyenda de Elementos</h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-box" style="background: linear-gradient(135deg, #2D3436 0%, #636E72 100%); border-radius: 15px;"></div>
+                    <span>Inicio / Fin</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: linear-gradient(135deg, #0984E3 0%, #74B9FF 100%);"></div>
+                    <span>Proceso / Acción</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: linear-gradient(135deg, #E17055 0%, #FAB1A0 100%); clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);"></div>
+                    <span>Decisión (Sí/No)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: linear-gradient(135deg, #00B894 0%, #55EFC4 100%);"></div>
+                    <span>Revisión Stakeholder</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: linear-gradient(135deg, #6C5CE7 0%, #A29BFE 100%);"></div>
+                    <span>Testing / QA</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: linear-gradient(135deg, #FDCB6E 0%, #FFEAA7 100%);"></div>
+                    <span>Feedback / Iteración</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        const tooltip = document.getElementById('tooltip');
+        const nodes = document.querySelectorAll('.node');
+
+        nodes.forEach(node => {
+            node.addEventListener('mouseenter', (e) => {
+                const info = node.getAttribute('data-info');
+                if (info) {
+                    tooltip.textContent = info;
+                    tooltip.style.opacity = '1';
+                }
+            });
+
+            node.addEventListener('mousemove', (e) => {
+                tooltip.style.left = e.clientX + 15 + 'px';
+                tooltip.style.top = e.clientY + 15 + 'px';
+            });
+
+            node.addEventListener('mouseleave', () => {
+                tooltip.style.opacity = '0';
+            });
+        });
+    </script>
+</body>
+</html>
